@@ -29,8 +29,10 @@ RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 local
 
 WORKDIR /app
 COPY --from=build /app/_build/prod/rel/budget_sentinel ./
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 ENV PHX_SERVER=true
 EXPOSE 4000
 
-CMD ["bin/budget_sentinel", "start"]
+CMD ["./entrypoint.sh"]
