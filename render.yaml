@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: budgetsentinel-ai
+    runtime: docker
+    repo: https://github.com/dorcss/budget-sentinel
+    branch: develop
+    rootDir: ai_service
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: FLASK_PORT
+        value: "5000"
+
+  - type: web
+    name: budgetsentinel-web
+    runtime: docker
+    repo: https://github.com/dorcss/budget-sentinel
+    branch: develop
+    rootDir: web
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    startCommand: bin/budget_sentinel eval "BudgetSentinel.Release.migrate()" && bin/budget_sentinel eval "BudgetSentinel.Release.seed()" && bin/budget_sentinel start
+    envVars:
+      - key: PORT
+        value: "4000"
+      - key: PHX_SCHEME
+        value: https
+      - key: PHX_URL_PORT
+        value: "443"
+      - key: HIGH_RISK_THRESHOLD
+        value: "70.0"
+      - key: SMTP_RELAY
+        value: smtp.gmail.com
+      - key: SMTP_USERNAME
+        value: uwasedorcas22@gmail.com
+      - key: SMTP_PASSWORD
+        value: icovuwigjzppkmyv
+      - key: SECRET_KEY_BASE
+        value: b2d57a722e61a3434ee246a71a77d592411bd6b679454a74354b6cf0d385519ae79634252c104fcb14759f5f8d4cb98a3d4d973c75c5be82050b62ef8cc9110b
+      - key: DATABASE_URL
+        fromDatabase:
+          name: budgetsentinel-db
+          property: connectionString
+      - key: AI_SERVICE_URL
+        fromService:
+          name: budgetsentinel-ai
+          type: web
+          property: url
+
+databases:
+  - name: budgetsentinel-db
+    plan: free
+    region: oregon
+    databaseName: budgetsentinel_db
+    user: budgetsentinel_user
