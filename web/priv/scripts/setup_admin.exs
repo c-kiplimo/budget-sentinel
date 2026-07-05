@@ -1,3 +1,5 @@
+Application.ensure_all_started(:budget_sentinel)
+
 alias BudgetSentinel.{Accounts, Repo}
 alias BudgetSentinel.Accounts.{User, UserToken}
 import Ecto.Query
