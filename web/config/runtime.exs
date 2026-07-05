@@ -11,8 +11,7 @@ if config_env() == :prod do
 
   config :budget_sentinel, BudgetSentinel.Repo,
     url: database_url,
-    ssl: System.get_env("DB_SSL") != "false",
-    ssl_opts: [verify: :verify_none],
+    ssl: if(System.get_env("DB_SSL") != "false", do: [verify: :verify_none], else: false),
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
   secret_key_base =
