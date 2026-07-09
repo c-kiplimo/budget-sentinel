@@ -32,6 +32,11 @@ if config_env() == :prod do
     System.get_env("AI_SERVICE_URL") || "http://localhost:5000"
 
   cond do
+    (brevo_key = System.get_env("BREVO_API_KEY")) not in [nil, ""] ->
+      config :budget_sentinel, BudgetSentinel.Notifications.Mailer,
+        adapter: Swoosh.Adapters.Brevo,
+        api_key: brevo_key
+
     (resend_key = System.get_env("RESEND_API_KEY")) not in [nil, ""] ->
       config :budget_sentinel, BudgetSentinel.Notifications.Mailer,
         adapter: Swoosh.Adapters.Resend,
