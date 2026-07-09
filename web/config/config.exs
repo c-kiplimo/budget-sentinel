@@ -16,7 +16,8 @@ config :budget_sentinel, BudgetSentinelWeb.Endpoint,
 
 config :budget_sentinel, BudgetSentinel.Notifications.Mailer, adapter: Swoosh.Adapters.Local
 
-config :swoosh, :api_client, false
+config :swoosh, :api_client, Swoosh.ApiClient.Finch
+config :swoosh, :finch_name, BudgetSentinel.Finch
 
 config :budget_sentinel, :ai_client, BudgetSentinel.Intelligence.HttpAIClient
 

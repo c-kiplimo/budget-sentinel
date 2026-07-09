@@ -31,15 +31,24 @@ if config_env() == :prod do
   config :budget_sentinel, :ai_service_base_url,
     System.get_env("AI_SERVICE_URL") || "http://localhost:5000"
 
-  if (smtp_relay = System.get_env("SMTP_RELAY")) not in [nil, ""] do
-    config :budget_sentinel, BudgetSentinel.Notifications.Mailer,
-      adapter: Swoosh.Adapters.SMTP,
-      relay: smtp_relay,
-      username: System.get_env("SMTP_USERNAME"),
-      password: System.get_env("SMTP_PASSWORD"),
-      port: String.to_integer(System.get_env("SMTP_PORT") || "587"),
-      tls: :always,
-      tls_options: [verify: :verify_none],
-      auth: :always
+  cond do
+    (resend_key = System.get_env("RESEND_API_KEY")) not in [nil, ""] ->
+      config :budget_sentinel, BudgetSentinel.Notifications.Mailer,
+        adapter: Swoosh.Adapters.Resend,
+        api_key: resend_key
+
+    (smtp_relay = System.get_env("SMTP_RELAY")) not in [nil, ""] ->
+      config :budget_sentinel, BudgetSentinel.Notifications.Mailer,
+        adapter: Swoosh.Adapters.SMTP,
+        relay: smtp_relay,
+        username: System.get_env("SMTP_USERNAME"),
+        password: System.get_env("SMTP_PASSWORD"),
+        port: String.to_integer(System.get_env("SMTP_PORT") || "587"),
+        tls: :always,
+        tls_options: [verify: :verify_none],
+        auth: :always
+
+    true ->
+      :ok
   end
 end
