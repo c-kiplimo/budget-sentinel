@@ -2,7 +2,7 @@ Application.ensure_all_started(:budget_sentinel)
 
 alias BudgetSentinel.{Accounts, Ministries}
 
-ministry = Ministries.list_ministries() |> Enum.find(&(&1.name =~ "Water"))
+ministry = Ministries.list_ministries() |> Enum.find(&(&1.code == "MININFRA"))
 IO.puts("Using ministry: #{ministry.name}")
 
 case Accounts.get_user_by_email("limokcollins@gmail.com") do

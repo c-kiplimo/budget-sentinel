@@ -2,19 +2,11 @@ alias BudgetSentinel.{Accounts, Ministries, Procurement}
 
 :rand.seed(:exsplus, {42, 42, 42})
 
-sectors = ~w(infrastructure education health water energy)
-
-ministries_by_sector =
-  for {sector, name, code} <- [
-        {"infrastructure", "Ministry of Infrastructure", "MININFRA"},
-        {"education", "Ministry of Education", "MINEDUC"},
-        {"health", "Ministry of Health", "MINISANTE"},
-        {"water", "Ministry of Water and Sanitation", "MINIWASA"},
-        {"energy", "Ministry of Energy", "MINENERGY"}
-      ],
-      into: %{} do
-    {:ok, ministry} = Ministries.create_ministry(%{name: name, code: code})
-    {sector, ministry}
+# Single ministry scope: Ministry of Roads and Infrastructure — Gasabo District
+{:ok, ministry} =
+  case Ministries.list_ministries() |> Enum.find(&(&1.code == "MININFRA")) do
+    nil -> Ministries.create_ministry(%{name: "Ministry of Roads and Infrastructure", code: "MININFRA"})
+    existing -> {:ok, existing}
   end
 
 if is_nil(Accounts.get_user_by_email("admin@budgetsentinel.local")) do
@@ -28,56 +20,75 @@ if is_nil(Accounts.get_user_by_email("admin@budgetsentinel.local")) do
   IO.puts("Bootstrap admin created: admin@budgetsentinel.local / ChangeMe123456!")
 end
 
-for {_sector, ministry} <- ministries_by_sector do
-  slug = ministry.code |> String.downcase()
+for {role, prefix} <- [{"auditor", "auditor"}, {"oversight_officer", "oversight"}] do
+  email = "#{prefix}.mininfra@budgetsentinel.local"
 
-  for {role, prefix} <- [{"auditor", "auditor"}, {"oversight_officer", "oversight"}] do
-    email = "#{prefix}.#{slug}@budgetsentinel.local"
-
-    if is_nil(Accounts.get_user_by_email(email)) do
-      Accounts.create_user_by_admin(%{
-        email: email,
-        password: "ChangeMe123456!",
-        role: role,
-        ministry_id: ministry.id
-      })
-    end
+  if is_nil(Accounts.get_user_by_email(email)) do
+    Accounts.create_user_by_admin(%{
+      email: email,
+      password: "ChangeMe123456!",
+      role: role,
+      ministry_id: ministry.id
+    })
   end
 end
 
 contractors = [
-  "Kivu Builders Ltd",
-  "Nyandungu Construction",
-  "Akagera Civil Works",
-  "Virunga Engineering",
-  "Muhabura Contractors",
-  "Inyenyeri Health Systems",
-  "Rusizi Roadworks",
-  "Gisozi Education Partners"
+  "Gasabo Roads Ltd",
+  "Kigali Civil Engineering Co.",
+  "Rusororo Construction Works",
+  "Kimironko Infrastructure Group",
+  "Remera Road Builders",
+  "Gisozi Engineering Partners",
+  "Bumbogo Civil Works",
+  "Nduba Tarmac Contractors"
 ]
 
-milestones = ~w(site_preparation foundation structural_works finishing handover)
+milestones = ~w(site_clearing earthworks base_course tarmacking road_markings)
 
 random_date = fn ->
   Date.add(~D[2024-01-01], :rand.uniform(364))
 end
 
-project_name = fn sector, index ->
-  "#{String.capitalize(sector)} Project ##{index}"
-end
+gasabo_projects = [
+  {"Kimironko–Gisozi Road Rehabilitation", "road_construction"},
+  {"Remera Junction Drainage Improvement", "drainage"},
+  {"Nyagatare Avenue Road Construction", "road_construction"},
+  {"Bumbogo–Rusororo Bridge Works", "bridge_works"},
+  {"Kibagabaga Road Expansion Phase I", "road_construction"},
+  {"Gisozi Traffic Management Upgrade", "traffic_management"},
+  {"Kacyiru–Kagugu Culvert Replacement", "culverts"},
+  {"Nduba Road Surfacing Project", "road_construction"},
+  {"Masaka–Muhima Link Road", "road_construction"},
+  {"Zindiro Market Access Road", "road_construction"},
+  {"Kimihurura Bypass Drainage Works", "drainage"},
+  {"Gahanga Road Base Course Works", "road_construction"},
+  {"Nyamata Road Construction Phase II", "road_construction"},
+  {"Nyamirambo Traffic Signage Upgrade", "traffic_management"},
+  {"Kinyinya Bridge Rehabilitation", "bridge_works"},
+  {"Jabana Road Maintenance Project", "road_construction"},
+  {"Bugesera Link Road Phase I", "road_construction"},
+  {"Batsinda Road Construction", "road_construction"},
+  {"Kanombe Airport Access Road", "road_construction"},
+  {"Gikondo Industrial Road Resurfacing", "road_construction"},
+  {"Kicukiro–Nyanza Road Expansion", "road_construction"},
+  {"Nyacyonga Interchange Construction", "bridge_works"},
+  {"Masoro Road Drainage Phase II", "drainage"},
+  {"Karuruma Road Construction Project", "road_construction"},
+  {"Ndera Road Widening Phase I", "road_construction"}
+]
 
 projects =
-  for index <- 1..50 do
-    sector = Enum.random(sectors)
+  for {name, sector} <- gasabo_projects do
     budget = Float.round(50_000 + :rand.uniform() * 1_950_000, 2)
     completion = Float.round(10 + :rand.uniform() * 90, 1)
     benchmark = Float.round(budget * (0.85 + :rand.uniform() * 0.25), 2)
 
     {:ok, project} =
       Procurement.create_project(%{
-        name: project_name.(sector, index),
+        name: name,
         sector: sector,
-        ministry_id: ministries_by_sector[sector].id,
+        ministry_id: ministry.id,
         approved_budget: Decimal.from_float(budget),
         market_benchmark: Decimal.from_float(benchmark),
         completion_rate: Decimal.from_float(completion),
@@ -97,20 +108,18 @@ create_expenditure = fn project, amount, milestone ->
   })
 end
 
-# 190 normal expenditures: 2-18% of the project's approved budget
-for _ <- 1..190 do
+# 120 normal expenditures: 2-18% of each project's approved budget
+for _ <- 1..120 do
   project = Enum.random(projects)
   budget = Decimal.to_float(project.approved_budget)
   fraction = 0.02 + :rand.uniform() * 0.16
   create_expenditure.(project, budget * fraction, Enum.random(milestones))
 end
 
-# 10 embedded fraud scenarios across the 5 known procurement irregularity types
-
-# Budget overrun x2 — payment pushes cumulative spend well past approved budget
+# Budget overrun x2 — cumulative spend exceeds approved budget
 for project <- Enum.take_random(projects, 2) do
   budget = Decimal.to_float(project.approved_budget)
-  create_expenditure.(project, budget * (1.3 + :rand.uniform() * 0.3), "finishing")
+  create_expenditure.(project, budget * (1.3 + :rand.uniform() * 0.3), "tarmacking")
 end
 
 # Duplicate payment x2 — same contractor paid twice for the same milestone
@@ -131,7 +140,7 @@ for project <- Enum.take_random(projects, 2) do
   end)
 end
 
-# Ghost project x2 — full payment disbursed against zero project completion
+# Ghost project x2 — full payment against zero project completion
 for project <- Enum.take_random(projects, 2) do
   {:ok, _} =
     project
@@ -139,20 +148,20 @@ for project <- Enum.take_random(projects, 2) do
     |> BudgetSentinel.Repo.update()
 
   budget = Decimal.to_float(project.approved_budget)
-  create_expenditure.(project, budget * (0.4 + :rand.uniform() * 0.2), "handover")
+  create_expenditure.(project, budget * (0.4 + :rand.uniform() * 0.2), "road_markings")
 end
 
-# Inflated contract x2 — payment far above the project's market benchmark
+# Inflated contract x2 — payment far above market benchmark
 for project <- Enum.take_random(projects, 2) do
   benchmark = Decimal.to_float(project.market_benchmark || project.approved_budget)
-  create_expenditure.(project, benchmark * (1.8 + :rand.uniform() * 0.4), "structural_works")
+  create_expenditure.(project, benchmark * (1.8 + :rand.uniform() * 0.4), "base_course")
 end
 
-# Premature payment x2 — large payment released far ahead of reported completion
+# Premature payment x2 — large payment released ahead of reported completion
 for project <- Enum.take_random(projects, 2) do
   budget = Decimal.to_float(project.approved_budget)
-  create_expenditure.(project, budget * (0.55 + :rand.uniform() * 0.2), "foundation")
+  create_expenditure.(project, budget * (0.55 + :rand.uniform() * 0.2), "earthworks")
 end
 
-IO.puts("Seeded #{length(projects)} projects with simulated Rwanda expenditure data,")
-IO.puts("including 10 embedded fraud scenarios across 5 procurement irregularity types.")
+IO.puts("Seeded #{length(projects)} Gasabo District road & infrastructure projects,")
+IO.puts("Ministry of Roads and Infrastructure — including 10 embedded fraud scenarios.")

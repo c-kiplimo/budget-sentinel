@@ -28,7 +28,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
   end
 
   defp apply_action(socket, :index, _params) do
-    assign(socket, :page_title, "Government Projects")
+    assign(socket, :page_title, "Gasabo District Projects")
   end
 
   @impl true
@@ -40,7 +40,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
   def render(assigns) do
     ~H"""
     <div class="page-heading">
-      <h1>Government Projects</h1>
+      <h1>Gasabo District — Roads &amp; Infrastructure Projects</h1>
       <.link :if={User.can_manage?(@current_user)} patch={~p"/projects/new"} class="btn">
         New Project
       </.link>
@@ -61,7 +61,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
         <tbody>
           <tr :for={project <- @projects}>
             <td><.link navigate={~p"/projects/#{project.id}"}><%= project.name %></.link></td>
-            <td><%= String.capitalize(project.sector) %></td>
+            <td><%= project.sector |> String.replace("_", " ") |> String.split() |> Enum.map_join(" ", &String.capitalize/1) %></td>
             <td><%= project.ministry && project.ministry.name %></td>
             <td><%= Decimal.to_string(project.approved_budget) %></td>
             <td><%= Decimal.to_string(project.completion_rate) %>%</td>

@@ -71,7 +71,7 @@ defmodule BudgetSentinelWeb.ProjectLive.FormComponent do
             <label>Sector</label>
             <select name="project[sector]">
               <option :for={sector <- BudgetSentinel.Procurement.Project.sectors()} value={sector} selected={@form[:sector].value == sector}>
-                <%= String.capitalize(sector) %>
+                <%= sector |> String.replace("_", " ") |> String.split() |> Enum.map_join(" ", &String.capitalize/1) %>
               </option>
             </select>
           </div>

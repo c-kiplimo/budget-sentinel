@@ -60,7 +60,7 @@ defmodule BudgetSentinelWeb.DashboardLive do
   def render(assigns) do
     ~H"""
     <div class="page-heading">
-      <h1>Expenditure Oversight Dashboard</h1>
+      <h1>Gasabo District — Roads &amp; Infrastructure Oversight</h1>
       <button :if={User.can_manage?(@current_user)} class="btn btn--secondary" phx-click="run_scan" disabled={@scanning}>
         <%= if @scanning, do: "Scanning...", else: "Run Detection Scan" %>
       </button>
@@ -86,7 +86,7 @@ defmodule BudgetSentinelWeb.DashboardLive do
         <tbody>
           <tr :for={project <- @projects}>
             <td><.link navigate={~p"/projects/#{project.id}"}><%= project.name %></.link></td>
-            <td><%= String.capitalize(project.sector) %></td>
+            <td><%= project.sector |> String.replace("_", " ") |> String.split() |> Enum.map_join(" ", &String.capitalize/1) %></td>
             <td><.budget_bar percent={Procurement.budget_utilization_percent(project)} /></td>
           </tr>
         </tbody>
