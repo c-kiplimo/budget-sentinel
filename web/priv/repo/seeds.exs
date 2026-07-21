@@ -9,10 +9,10 @@ alias BudgetSentinel.{Accounts, Audit, Ministries, Procurement, Repo}
     existing -> {:ok, existing}
   end
 
-# Admin: Collins Kiplimo
-if is_nil(Accounts.get_user_by_email("limokcollins@gmail.com")) do
+# Admin account
+if is_nil(Accounts.get_user_by_email("admin@budgetsentinel.online")) do
   {:ok, _} = Accounts.create_user_by_admin(%{
-    email: "limokcollins@gmail.com",
+    email: "admin@budgetsentinel.online",
     password: "BudgetSentinel!1234",
     role: "admin"
   })
@@ -43,7 +43,7 @@ create_exp = fn project, amount, milestone, contractor, date ->
   exp
 end
 
-alert_recipients = ["uwasedorcas22@gmail.com", "limokcollins@gmail.com"]
+alert_recipients = ["uwasedorcas22@gmail.com", "admin@budgetsentinel.online"]
 
 seed_anomaly = fn project, expenditure, fraud_type, risk_score, anomaly_score, explanation, report_summary, report_severity, report_actions ->
   {:ok, anomaly} = Audit.record_anomaly(%{
