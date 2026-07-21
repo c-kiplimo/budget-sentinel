@@ -47,7 +47,7 @@ contractors = [
 milestones = ~w(site_clearing earthworks base_course tarmacking road_markings)
 
 random_date = fn ->
-  Date.add(~D[2024-01-01], :rand.uniform(364))
+  Date.add(~D[2025-01-01], :rand.uniform(364))
 end
 
 gasabo_projects = [
