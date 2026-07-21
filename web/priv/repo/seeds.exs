@@ -9,20 +9,23 @@ alias BudgetSentinel.{Accounts, Audit, Ministries, Procurement, Repo}
     existing -> {:ok, existing}
   end
 
-if is_nil(Accounts.get_user_by_email("admin@budgetsentinel.local")) do
-  {:ok, _} =
-    Accounts.create_user_by_admin(%{
-      email: "admin@budgetsentinel.local",
-      password: "ChangeMe123456!",
-      role: "admin"
-    })
+# Admin: Collins Kiplimo
+if is_nil(Accounts.get_user_by_email("limokcollins@gmail.com")) do
+  {:ok, _} = Accounts.create_user_by_admin(%{
+    email: "limokcollins@gmail.com",
+    password: "BudgetSentinel!1234",
+    role: "admin"
+  })
 end
 
-for {role, prefix} <- [{"auditor", "auditor"}, {"oversight_officer", "oversight"}] do
-  email = "#{prefix}.mininfra@budgetsentinel.local"
-  if is_nil(Accounts.get_user_by_email(email)) do
-    Accounts.create_user_by_admin(%{email: email, password: "ChangeMe123456!", role: role, ministry_id: ministry.id})
-  end
+# Auditor: Uwase Dorcas — Ministry of Roads and Infrastructure
+if is_nil(Accounts.get_user_by_email("uwasedorcas22@gmail.com")) do
+  {:ok, _} = Accounts.create_user_by_admin(%{
+    email: "uwasedorcas22@gmail.com",
+    password: "BudgetSentinel!1234",
+    role: "auditor",
+    ministry_id: ministry.id
+  })
 end
 
 milestones = ~w(site_clearing earthworks base_course tarmacking road_markings)
