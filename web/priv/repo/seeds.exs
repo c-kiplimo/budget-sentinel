@@ -210,7 +210,7 @@ seed_anomaly.(
   approved_budget: Decimal.new("180000000"),
   market_benchmark: Decimal.new("160000000"),
   completion_rate: Decimal.from_float(0.0),
-  completion_date: ~D[2025-10-31],
+  completion_date: ~D[2027-06-30],
   milestones: milestones
 })
 

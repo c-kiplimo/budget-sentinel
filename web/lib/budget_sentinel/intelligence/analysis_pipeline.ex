@@ -20,7 +20,14 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
       |> Enum.map(& &1.project_id)
       |> MapSet.new()
 
-    projects = Enum.reject(projects, &MapSet.member?(already_flagged, &1.id))
+    today = Date.utc_today()
+
+    projects =
+      Enum.reject(projects, fn p ->
+        MapSet.member?(already_flagged, p.id) or
+          (not is_nil(p.completion_date) and Date.compare(p.completion_date, today) == :lt)
+      end)
+
     expenditures = Procurement.list_expenditures_for_projects(Enum.map(projects, & &1.id))
 
     if projects == [] do
