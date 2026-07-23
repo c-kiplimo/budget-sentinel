@@ -103,6 +103,11 @@ defmodule BudgetSentinelWeb.ProjectLive.FormComponent do
             <input type="number" step="0.1" name="project[completion_rate]" value={@form[:completion_rate].value} />
           </div>
 
+          <div class="form-field">
+            <label>Completion Date</label>
+            <input type="date" name="project[completion_date]" value={@form[:completion_date].value} />
+          </div>
+
           <div class="modal-actions">
             <.link patch={@patch} class="btn btn--secondary">Cancel</.link>
             <button type="submit" class="btn">Save</button>

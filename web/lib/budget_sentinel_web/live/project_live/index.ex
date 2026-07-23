@@ -55,6 +55,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
             <th>Ministry</th>
             <th>Approved Budget</th>
             <th>Completion</th>
+            <th>Completion Date</th>
             <th>Budget Utilization</th>
           </tr>
         </thead>
@@ -65,6 +66,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
             <td><%= project.ministry && project.ministry.name %></td>
             <td><%= Decimal.to_string(project.approved_budget) %></td>
             <td><%= Decimal.to_string(project.completion_rate) %>%</td>
+            <td><%= if project.completion_date, do: Date.to_string(project.completion_date), else: "—" %></td>
             <td><.budget_bar percent={Procurement.budget_utilization_percent(project)} /></td>
           </tr>
         </tbody>

@@ -113,6 +113,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Show do
       <.stat_card label="Ministry" value={@project.ministry && @project.ministry.name} />
       <.stat_card label="Approved Budget" value={Decimal.to_string(@project.approved_budget)} />
       <.stat_card label="Completion" value={"#{@project.completion_rate}%"} accent="secondary" />
+      <.stat_card label="Completion Date" value={if @project.completion_date, do: Date.to_string(@project.completion_date), else: "Not set"} />
       <.stat_card label="Budget Utilization" value={"#{@utilization}%"} accent="secondary" />
     </div>
 

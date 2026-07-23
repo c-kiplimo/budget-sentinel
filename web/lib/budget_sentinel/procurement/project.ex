@@ -10,6 +10,7 @@ defmodule BudgetSentinel.Procurement.Project do
     field :approved_budget, :decimal
     field :market_benchmark, :decimal
     field :completion_rate, :decimal, default: Decimal.new("0")
+    field :completion_date, :date
     field :milestones, {:array, :string}, default: []
 
     belongs_to :ministry, BudgetSentinel.Ministries.Ministry
@@ -27,6 +28,7 @@ defmodule BudgetSentinel.Procurement.Project do
       :approved_budget,
       :market_benchmark,
       :completion_rate,
+      :completion_date,
       :milestones,
       :ministry_id
     ])

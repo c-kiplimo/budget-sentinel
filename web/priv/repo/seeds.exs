@@ -2,7 +2,6 @@ alias BudgetSentinel.{Accounts, Audit, Ministries, Procurement, Repo}
 
 :rand.seed(:exsplus, {42, 42, 42})
 
-# Single ministry: Ministry of Roads and Infrastructure — Gasabo District
 {:ok, ministry} =
   case Ministries.list_ministries() |> Enum.find(&(&1.code == "GASABO-INFRA")) do
     nil -> Ministries.create_ministry(%{name: "Gasabo District Infrastructure Department", code: "GASABO-INFRA"})
@@ -18,7 +17,7 @@ if is_nil(Accounts.get_user_by_email("admin@budgetsentinel.online")) do
   })
 end
 
-# Auditor: Uwase Dorcas — Ministry of Roads and Infrastructure
+# Auditor: Uwase Dorcas
 if is_nil(Accounts.get_user_by_email("uwasedorcas22@gmail.com")) do
   {:ok, _} = Accounts.create_user_by_admin(%{
     email: "uwasedorcas22@gmail.com",
@@ -29,6 +28,7 @@ if is_nil(Accounts.get_user_by_email("uwasedorcas22@gmail.com")) do
 end
 
 milestones = ~w(site_clearing earthworks base_course tarmacking road_markings)
+alert_recipients = ["uwasedorcas22@gmail.com", "admin@budgetsentinel.online"]
 
 paid = fn date_str -> Date.from_iso8601!(date_str) end
 
@@ -43,8 +43,6 @@ create_exp = fn project, amount, milestone, contractor, date ->
   exp
 end
 
-alert_recipients = ["uwasedorcas22@gmail.com", "admin@budgetsentinel.online"]
-
 seed_anomaly = fn project, expenditure, fraud_type, risk_score, anomaly_score, explanation, report_summary, report_severity, report_actions ->
   {:ok, anomaly} = Audit.record_anomaly(%{
     fraud_type: fraud_type,
@@ -57,96 +55,107 @@ seed_anomaly = fn project, expenditure, fraud_type, risk_score, anomaly_score, e
     detected_at: ~U[2025-06-15 08:30:00Z],
     status: "open"
   })
-
   Audit.attach_report(anomaly, %{
     "anomaly_id" => anomaly.id,
     "summary" => report_summary,
     "severity_assessment" => report_severity,
     "recommended_actions" => report_actions
   })
-
-  for recipient <- alert_recipients do
-    Audit.log_alert(anomaly, recipient, "sent")
-  end
-
+  for recipient <- alert_recipients, do: Audit.log_alert(anomaly, recipient, "sent")
   anomaly
 end
 
-# ── Project 1: Inflated Contract ──────────────────────────────────────────────
+# ── Project 1: Zindiro–Masizi–Birembo–Kami Road Construction ─────────────────
+# Location: Bumbogo and Kinyinya Sectors, Gasabo | Length: 14.7 km | Laterite road
+# Budget: RWF 2.2B | Launched Feb 2017, 6-month planned duration | Contractor unverified
 {:ok, p1} = Procurement.create_project(%{
-  name: "Kimironko–Remera Road Rehabilitation",
+  name: "Zindiro–Masizi–Birembo–Kami Road Construction",
   sector: "road_construction",
   ministry_id: ministry.id,
-  approved_budget: Decimal.from_float(1_200_000.00),
-  market_benchmark: Decimal.from_float(1_100_000.00),
-  completion_rate: Decimal.from_float(62.0),
+  approved_budget: Decimal.new("2200000000"),
+  market_benchmark: Decimal.new("1900000000"),
+  completion_rate: Decimal.from_float(35.0),
+  completion_date: nil,
   milestones: milestones
 })
 
-create_exp.(p1, 180_000.00, "site_clearing",  "Kimironko Infrastructure Group", paid.("2025-02-10"))
-create_exp.(p1, 210_000.00, "earthworks",     "Remera Road Builders",           paid.("2025-03-18"))
-create_exp.(p1, 155_000.00, "base_course",    "Kimironko Infrastructure Group", paid.("2025-04-22"))
-tarmacking_exp = create_exp.(p1, 2_420_000.00, "tarmacking", "Gasabo Roads Ltd", paid.("2025-05-30"))
+create_exp.(p1, 310_000_000.0, "site_clearing",  "Unverified Contractor", paid.("2025-02-10"))
+create_exp.(p1, 420_000_000.0, "earthworks",     "Unverified Contractor", paid.("2025-03-18"))
+# Inflated: tarmacking payment far exceeds market benchmark per km
+inflated_exp = create_exp.(p1, 3_800_000_000.0, "tarmacking", "Unverified Contractor", paid.("2025-05-30"))
 
 seed_anomaly.(
-  p1, tarmacking_exp,
-  "inflated_contract", 87.5, 0.82,
+  p1, inflated_exp,
+  "inflated_contract", 89.0, 0.85,
   "Payment amount is well above the market benchmark for this project type.",
-  "A tarmacking payment of RWF 2,420,000 was made against a market benchmark of RWF 1,100,000 — representing 220% of the expected rate. This is a strong indicator of contract price inflation.",
-  "HIGH — payment exceeds market benchmark by 120%. Likely collusion between contractor and procurement officer.",
-  "1. Suspend further payments to Gasabo Roads Ltd pending investigation.\n2. Commission an independent valuation of tarmacking works completed.\n3. Forward to Rwanda Public Procurement Authority (RPPA) for audit.\n4. Review all contracts awarded to this contractor in the last 24 months."
+  "A tarmacking payment of RWF 3.8 billion was submitted against a market benchmark of RWF 1.9 billion for a 14.7 km laterite road in Bumbogo and Kinyinya Sectors. The payment represents 200% of the established benchmark, with no contractor formally verified.",
+  "HIGH — payment exceeds the market benchmark by 100%. Combined with an unverified contractor, this is a strong indicator of inflated contract pricing.",
+  "1. Suspend further disbursements pending contractor verification.\n2. Commission an independent valuation of works completed to date.\n3. Refer to Rwanda Public Procurement Authority (RPPA) for contractor eligibility review.\n4. Require documentary evidence of works completed before any further payment authorisation."
 )
 
-# ── Project 2: Duplicate Payment ─────────────────────────────────────────────
+# ── Project 2: Cumi na Gatanu–Ndera–Kibenga Road ─────────────────────────────
+# Location: Ndera Sector, Gasabo | Length: 2.7 km | Asphalt road | 2 phases
+# Budget: RWF 2.5B | Contractor: HORIZON | Opened March 2019
 {:ok, p2} = Procurement.create_project(%{
-  name: "Kinyinya Bridge Rehabilitation",
-  sector: "bridge_works",
+  name: "Cumi na Gatanu–Ndera–Kibenga Road",
+  sector: "road_construction",
   ministry_id: ministry.id,
-  approved_budget: Decimal.from_float(850_000.00),
-  market_benchmark: Decimal.from_float(820_000.00),
-  completion_rate: Decimal.from_float(45.0),
+  approved_budget: Decimal.new("2500000000"),
+  market_benchmark: Decimal.new("2300000000"),
+  completion_rate: Decimal.from_float(100.0),
+  completion_date: ~D[2019-03-15],
   milestones: milestones
 })
 
-create_exp.(p2,  95_000.00, "site_clearing", "Bumbogo Civil Works",         paid.("2025-01-20"))
-create_exp.(p2, 130_000.00, "earthworks",    "Nduba Tarmac Contractors",    paid.("2025-02-28"))
-dup_exp1 = create_exp.(p2, 280_000.00, "base_course", "Rusororo Construction Works", paid.("2025-04-05"))
-_dup_exp2 = create_exp.(p2, 280_000.00, "base_course", "Rusororo Construction Works", paid.("2025-04-05"))
+create_exp.(p2,  380_000_000.0, "site_clearing", "HORIZON Ltd", paid.("2025-01-20"))
+create_exp.(p2,  560_000_000.0, "earthworks",    "HORIZON Ltd", paid.("2025-02-28"))
+create_exp.(p2,  490_000_000.0, "base_course",   "HORIZON Ltd", paid.("2025-04-05"))
+# Duplicate: same contractor paid twice for the same milestone and amount
+dup_exp = create_exp.(p2, 720_000_000.0, "tarmacking", "HORIZON Ltd", paid.("2025-05-12"))
+_dup2   = create_exp.(p2, 720_000_000.0, "tarmacking", "HORIZON Ltd", paid.("2025-05-12"))
 
 seed_anomaly.(
-  p2, dup_exp1,
-  "duplicate_payment", 79.0, 0.76,
+  p2, dup_exp,
+  "duplicate_payment", 81.0, 0.78,
   "Same contractor was paid more than once for the same milestone.",
-  "Rusororo Construction Works received two identical payments of RWF 280,000 for the 'base_course' milestone on the same date (2025-04-05). Total duplicate exposure: RWF 280,000.",
-  "HIGH — exact duplicate payment detected. One payment is likely unauthorised.",
-  "1. Place an immediate hold on the second payment of RWF 280,000.\n2. Require Rusororo Construction Works to provide invoices for both transactions.\n3. Initiate recovery proceedings for the duplicate amount.\n4. Review payment approval workflow for missing dual-authorisation controls."
+  "HORIZON Ltd received two identical payments of RWF 720,000,000 for the 'tarmacking' milestone on 2025-05-12. Total duplicate exposure: RWF 720,000,000. The project was officially opened in March 2019, making a 2025 tarmacking disbursement anomalous.",
+  "HIGH — exact duplicate payment detected on a completed project. One payment is almost certainly unauthorised.",
+  "1. Place an immediate hold on the duplicate payment of RWF 720,000,000.\n2. Request HORIZON Ltd to provide separate invoices and completion certificates for both transactions.\n3. Initiate recovery proceedings for the duplicate amount.\n4. Audit all post-completion payments on this project since March 2019."
 )
 
-# ── Project 3: Ghost Project ──────────────────────────────────────────────────
+# ── Project 3: Karuruma–Bweramvura Asphalt Road ──────────────────────────────
+# Location: Gasabo District (Kinyinya Sector) | Length: 7.8 km | Asphalt road
+# Budget: RWF 1,041,983,838 | Contractor: JV ECOTRA–EGETRACO | Contract: RWF 860.15M
+# Completed; 95.48% disbursement
 {:ok, p3} = Procurement.create_project(%{
-  name: "Kacyiru–Kagugu Culvert Replacement",
-  sector: "culverts",
+  name: "Karuruma–Bweramvura Asphalt Road",
+  sector: "road_construction",
   ministry_id: ministry.id,
-  approved_budget: Decimal.from_float(620_000.00),
-  market_benchmark: Decimal.from_float(590_000.00),
-  completion_rate: Decimal.from_float(0.0),
+  approved_budget: Decimal.new("1041983838"),
+  market_benchmark: Decimal.new("900000000"),
+  completion_rate: Decimal.from_float(95.0),
+  completion_date: ~D[2022-06-30],
   milestones: milestones
 })
 
-ghost_exp = create_exp.(p3, 490_000.00, "road_markings", "Gisozi Engineering Partners", paid.("2025-03-12"))
+create_exp.(p3, 120_000_000.0, "site_clearing", "JV ECOTRA-EGETRACO", paid.("2025-01-15"))
+create_exp.(p3, 195_000_000.0, "earthworks",    "JV ECOTRA-EGETRACO", paid.("2025-02-20"))
+create_exp.(p3, 210_000_000.0, "base_course",   "JV ECOTRA-EGETRACO", paid.("2025-03-25"))
+# Premature: large final payment released at 95% completion before project sign-off
+premature_exp = create_exp.(p3, 860_000_000.0, "road_markings", "JV ECOTRA-EGETRACO", paid.("2025-04-10"))
 
 seed_anomaly.(
-  p3, ghost_exp,
-  "ghost_project", 93.0, 0.91,
-  "Full payment was disbursed against a project reporting zero completion.",
-  "RWF 490,000 (79% of approved budget) was disbursed to Gisozi Engineering Partners for road markings, yet the project records 0% physical completion. No site work has been verified.",
-  "CRITICAL — payment disbursed against a non-existent or uninitiated project. High likelihood of fictitious contract.",
-  "1. Immediately freeze all remaining funds allocated to this project.\n2. Conduct an urgent site inspection to verify whether any works have commenced.\n3. Refer to the Office of the Auditor General (OAG) for forensic investigation.\n4. Suspend Gisozi Engineering Partners from future procurement pending outcome.\n5. Investigate the authorising officer who approved payment without site verification."
+  p3, premature_exp,
+  "premature_payment", 76.0, 0.72,
+  "Payment amount far exceeds the project's reported completion percentage.",
+  "A final payment of RWF 860,000,000 (representing 82.5% of the approved budget) was released to JV ECOTRA–EGETRACO when the project was only 95% complete and prior to formal sign-off. Total disbursement of RWF 1,385,000,000 now exceeds the approved budget of RWF 1,041,983,838.",
+  "HIGH — full contract payment released before formal completion certificate. Combined with total disbursements exceeding the approved budget, this warrants immediate review.",
+  "1. Withhold remaining payment pending issuance of a formal project completion certificate.\n2. Reconcile total disbursements against approved budget and contract value.\n3. Verify road markings phase was completed to specification before final payment.\n4. Review approval chain for the RWF 860M release authorisation."
 )
 
-IO.puts("Seeded 3 Gasabo District projects with anomalies and alerts:")
-IO.puts("  1. Kimironko–Remera Road Rehabilitation  — inflated contract   (risk: 87.5)")
-IO.puts("  2. Kinyinya Bridge Rehabilitation         — duplicate payment   (risk: 79.0)")
-IO.puts("  3. Kacyiru–Kagugu Culvert Replacement     — ghost project       (risk: 93.0)")
+IO.puts("Seeded 3 real Gasabo District road projects:")
+IO.puts("  1. Zindiro–Masizi–Birembo–Kami Road Construction  (RWF 2.2B) — inflated contract (89.0)")
+IO.puts("  2. Cumi na Gatanu–Ndera–Kibenga Road              (RWF 2.5B) — duplicate payment (81.0)")
+IO.puts("  3. Karuruma–Bweramvura Asphalt Road               (RWF 1.04B) — premature payment (76.0)")
 IO.puts("  Department: Gasabo District Infrastructure Department")
 IO.puts("  Alerts dispatched to: #{Enum.join(alert_recipients, ", ")}")
