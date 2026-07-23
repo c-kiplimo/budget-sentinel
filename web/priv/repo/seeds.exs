@@ -64,12 +64,10 @@ seed_anomaly = fn project, expenditure, fraud_type, risk_score, anomaly_score, e
 end
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ORIGINAL 3 PROJECTS (real Gasabo District projects)
+# ORIGINAL 3 PROJECTS — clean, no anomalies
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ── Project 1: Zindiro–Masizi–Birembo–Kami Road Construction ─────────────────
-# Location: Bumbogo and Kinyinya Sectors | Length: 14.7 km | Laterite road
-# Budget: RWF 2.2B | Launched Feb 2017, 6-month duration | Completion: Aug 2017
 {:ok, p1} = Procurement.create_project(%{
   name: "Zindiro–Masizi–Birembo–Kami Road Construction",
   sector: "road_construction",
@@ -81,14 +79,11 @@ end
   milestones: milestones
 })
 
-p1_exp = create_exp.(p1, 310_000_000.0, "site_clearing", "Unverified Contractor", paid.("2025-02-10"))
+create_exp.(p1, 310_000_000.0, "site_clearing", "Unverified Contractor", paid.("2025-02-10"))
 create_exp.(p1, 420_000_000.0, "earthworks",    "Unverified Contractor", paid.("2025-03-18"))
 create_exp.(p1, 680_000_000.0, "tarmacking",    "Unverified Contractor", paid.("2025-05-30"))
-Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.from_float(22.0), severity: "low", anomaly_score: Decimal.from_float(0.22), explanation: "Budget variance reviewed; contractor rates verified and approved by district engineer.", project_id: p1.id, expenditure_id: p1_exp.id, detected_at: ~U[2025-03-20 09:00:00Z], status: "resolved"})
 
 # ── Project 2: Cumi na Gatanu–Ndera–Kibenga Road ─────────────────────────────
-# Location: Ndera Sector | Length: 2.7 km | Asphalt road | 2 phases
-# Budget: RWF 2.5B | Contractor: HORIZON | Opened March 2019
 {:ok, p2} = Procurement.create_project(%{
   name: "Cumi na Gatanu–Ndera–Kibenga Road",
   sector: "road_construction",
@@ -100,15 +95,12 @@ Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.f
   milestones: milestones
 })
 
-p2_exp = create_exp.(p2, 380_000_000.0, "site_clearing", "HORIZON Ltd", paid.("2025-01-20"))
+create_exp.(p2, 380_000_000.0, "site_clearing", "HORIZON Ltd", paid.("2025-01-20"))
 create_exp.(p2, 560_000_000.0, "earthworks",    "HORIZON Ltd", paid.("2025-02-28"))
 create_exp.(p2, 490_000_000.0, "base_course",   "HORIZON Ltd", paid.("2025-04-05"))
 create_exp.(p2, 720_000_000.0, "tarmacking",    "HORIZON Ltd", paid.("2025-05-12"))
-Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.from_float(18.0), severity: "low", anomaly_score: Decimal.from_float(0.18), explanation: "Two-phase payment structure reviewed; scope changes formally approved by procurement committee.", project_id: p2.id, expenditure_id: p2_exp.id, detected_at: ~U[2025-02-25 09:00:00Z], status: "resolved"})
 
 # ── Project 3: Karuruma–Bweramvura Asphalt Road ──────────────────────────────
-# Location: Kinyinya Sector | Length: 7.8 km | Asphalt road
-# Budget: RWF 1,041,983,838 | Contractor: JV ECOTRA–EGETRACO | Completed 2022
 {:ok, p3} = Procurement.create_project(%{
   name: "Karuruma–Bweramvura Asphalt Road",
   sector: "road_construction",
@@ -120,19 +112,16 @@ Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.f
   milestones: milestones
 })
 
-p3_exp = create_exp.(p3, 120_000_000.0, "site_clearing", "JV ECOTRA-EGETRACO", paid.("2025-01-15"))
+create_exp.(p3, 120_000_000.0, "site_clearing", "JV ECOTRA-EGETRACO", paid.("2025-01-15"))
 create_exp.(p3, 195_000_000.0, "earthworks",    "JV ECOTRA-EGETRACO", paid.("2025-02-20"))
 create_exp.(p3, 210_000_000.0, "base_course",   "JV ECOTRA-EGETRACO", paid.("2025-03-25"))
 create_exp.(p3, 340_000_000.0, "road_markings", "JV ECOTRA-EGETRACO", paid.("2025-04-10"))
-Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.from_float(15.0), severity: "low", anomaly_score: Decimal.from_float(0.15), explanation: "Sub-contractor rates and joint venture agreement reviewed; no irregularities found.", project_id: p3.id, expenditure_id: p3_exp.id, detected_at: ~U[2025-01-20 09:00:00Z], status: "resolved"})
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 3 ADDITIONAL GASABO DISTRICT PROJECTS WITH ANOMALIES
+# 3 PROJECTS WITH PRE-SEEDED ANOMALIES
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ── Project 4: Jabana–Rusororo Bridge Construction ───────────────────────────
-# Location: Jabana and Rusororo Sectors, Gasabo | Bridge works
-# Budget: RWF 780M | Ghost project: 0% completion, large payment disbursed
 {:ok, p4} = Procurement.create_project(%{
   name: "Jabana–Rusororo Bridge Construction",
   sector: "bridge_works",
@@ -156,8 +145,6 @@ seed_anomaly.(
 )
 
 # ── Project 5: Nduba Sector Drainage Rehabilitation ──────────────────────────
-# Location: Nduba Sector, Gasabo | Drainage works
-# Budget: RWF 420M | Budget overrun: cumulative spending exceeds approved budget
 {:ok, p5} = Procurement.create_project(%{
   name: "Nduba Sector Drainage Rehabilitation",
   sector: "drainage",
@@ -184,8 +171,6 @@ seed_anomaly.(
 )
 
 # ── Project 6: Gisozi–Kacyiru Road Culvert Works ─────────────────────────────
-# Location: Gisozi and Kacyiru Sectors, Gasabo | Culvert works
-# Budget: RWF 310M | Duplicate payment on foundation works
 {:ok, p6} = Procurement.create_project(%{
   name: "Gisozi–Kacyiru Road Culvert Works",
   sector: "culverts",
@@ -211,13 +196,35 @@ seed_anomaly.(
   "1. Place an immediate hold on the second payment of RWF 95,000,000.\n2. Require Gisozi Engineering Partners to return the duplicate payment within 14 days.\n3. Review the payment approval workflow for missing dual-authorisation controls on this contract.\n4. Verify that base course works were completed to specification before either payment was released."
 )
 
-IO.puts("Seeded 6 Gasabo District projects:")
-IO.puts("  No anomalies:")
+# ═══════════════════════════════════════════════════════════════════════════════
+# PROJECT 7 — no seeded anomaly; scan bait for live detection demo
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Project 7: Kimironko–Biryogo Traffic Signalisation ───────────────────────
+# Location: Kimironko Sector, Gasabo | Traffic management
+# Budget: RWF 180M | 0% completion, 94% of budget already paid out
+{:ok, p7} = Procurement.create_project(%{
+  name: "Kimironko–Biryogo Traffic Signalisation",
+  sector: "traffic_management",
+  ministry_id: ministry.id,
+  approved_budget: Decimal.new("180000000"),
+  market_benchmark: Decimal.new("160000000"),
+  completion_rate: Decimal.from_float(0.0),
+  completion_date: ~D[2025-10-31],
+  milestones: milestones
+})
+
+create_exp.(p7, 169_000_000.0, "tarmacking", "Kimironko Signal Works Ltd", paid.("2025-06-01"))
+
+IO.puts("Seeded 7 Gasabo District projects:")
+IO.puts("  Clean (no anomalies):")
 IO.puts("    1. Zindiro-Masizi-Birembo-Kami Road Construction  (RWF 2.2B)")
 IO.puts("    2. Cumi na Gatanu-Ndera-Kibenga Road              (RWF 2.5B)")
 IO.puts("    3. Karuruma-Bweramvura Asphalt Road               (RWF 1.04B)")
-IO.puts("  With anomalies and alerts:")
+IO.puts("  Pre-seeded anomalies and alerts:")
 IO.puts("    4. Jabana-Rusororo Bridge Construction  (RWF 780M)  — ghost project    (93.0)")
 IO.puts("    5. Nduba Sector Drainage Rehabilitation (RWF 420M)  — budget overrun   (83.0)")
 IO.puts("    6. Gisozi-Kacyiru Road Culvert Works   (RWF 310M)  — duplicate payment (77.0)")
+IO.puts("  Scan bait (no anomaly seeded — run Detection Scan to flag):")
+IO.puts("    7. Kimironko-Biryogo Traffic Signalisation (RWF 180M) — 0% completion, 94% paid")
 IO.puts("  Alerts dispatched to: #{Enum.join(alert_recipients, ", ")}")
