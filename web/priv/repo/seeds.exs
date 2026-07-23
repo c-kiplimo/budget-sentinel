@@ -83,16 +83,7 @@ end
 
 create_exp.(p1, 310_000_000.0, "site_clearing", "Unverified Contractor", paid.("2025-02-10"))
 create_exp.(p1, 420_000_000.0, "earthworks",    "Unverified Contractor", paid.("2025-03-18"))
-inflated_exp = create_exp.(p1, 3_800_000_000.0, "tarmacking", "Unverified Contractor", paid.("2025-05-30"))
-
-seed_anomaly.(
-  p1, inflated_exp,
-  "inflated_contract", 89.0, 0.85,
-  "Payment amount is well above the market benchmark for this project type.",
-  "A tarmacking payment of RWF 3.8 billion was submitted against a market benchmark of RWF 1.9 billion for a 14.7 km laterite road in Bumbogo and Kinyinya Sectors. The payment represents 200% of the established benchmark, with no contractor formally verified.",
-  "HIGH — payment exceeds the market benchmark by 100%. Combined with an unverified contractor, this is a strong indicator of inflated contract pricing.",
-  "1. Suspend further disbursements pending contractor verification.\n2. Commission an independent valuation of works completed to date.\n3. Refer to Rwanda Public Procurement Authority (RPPA) for contractor eligibility review.\n4. Require documentary evidence of works completed before any further payment authorisation."
-)
+create_exp.(p1, 680_000_000.0, "tarmacking",    "Unverified Contractor", paid.("2025-05-30"))
 
 # ── Project 2: Cumi na Gatanu–Ndera–Kibenga Road ─────────────────────────────
 # Location: Ndera Sector | Length: 2.7 km | Asphalt road | 2 phases
@@ -111,17 +102,7 @@ seed_anomaly.(
 create_exp.(p2, 380_000_000.0, "site_clearing", "HORIZON Ltd", paid.("2025-01-20"))
 create_exp.(p2, 560_000_000.0, "earthworks",    "HORIZON Ltd", paid.("2025-02-28"))
 create_exp.(p2, 490_000_000.0, "base_course",   "HORIZON Ltd", paid.("2025-04-05"))
-dup_exp = create_exp.(p2, 720_000_000.0, "tarmacking", "HORIZON Ltd", paid.("2025-05-12"))
-_dup2   = create_exp.(p2, 720_000_000.0, "tarmacking", "HORIZON Ltd", paid.("2025-05-12"))
-
-seed_anomaly.(
-  p2, dup_exp,
-  "duplicate_payment", 81.0, 0.78,
-  "Same contractor was paid more than once for the same milestone.",
-  "HORIZON Ltd received two identical payments of RWF 720,000,000 for the 'tarmacking' milestone on 2025-05-12. Total duplicate exposure: RWF 720,000,000. The project was officially opened in March 2019, making a 2025 tarmacking disbursement anomalous.",
-  "HIGH — exact duplicate payment detected on a completed project. One payment is almost certainly unauthorised.",
-  "1. Place an immediate hold on the duplicate payment of RWF 720,000,000.\n2. Request HORIZON Ltd to provide separate invoices and completion certificates for both transactions.\n3. Initiate recovery proceedings for the duplicate amount.\n4. Audit all post-completion payments on this project since March 2019."
-)
+create_exp.(p2, 720_000_000.0, "tarmacking",    "HORIZON Ltd", paid.("2025-05-12"))
 
 # ── Project 3: Karuruma–Bweramvura Asphalt Road ──────────────────────────────
 # Location: Kinyinya Sector | Length: 7.8 km | Asphalt road
@@ -140,16 +121,7 @@ seed_anomaly.(
 create_exp.(p3, 120_000_000.0, "site_clearing", "JV ECOTRA-EGETRACO", paid.("2025-01-15"))
 create_exp.(p3, 195_000_000.0, "earthworks",    "JV ECOTRA-EGETRACO", paid.("2025-02-20"))
 create_exp.(p3, 210_000_000.0, "base_course",   "JV ECOTRA-EGETRACO", paid.("2025-03-25"))
-premature_exp = create_exp.(p3, 860_000_000.0, "road_markings", "JV ECOTRA-EGETRACO", paid.("2025-04-10"))
-
-seed_anomaly.(
-  p3, premature_exp,
-  "premature_payment", 76.0, 0.72,
-  "Payment amount far exceeds the project's reported completion percentage.",
-  "A final payment of RWF 860,000,000 (82.5% of approved budget) was released to JV ECOTRA–EGETRACO when the project was only 95% complete and prior to formal sign-off. Total disbursement of RWF 1,385,000,000 now exceeds the approved budget of RWF 1,041,983,838.",
-  "HIGH — full contract payment released before formal completion certificate. Combined with total disbursements exceeding the approved budget, this warrants immediate review.",
-  "1. Withhold remaining payment pending issuance of a formal project completion certificate.\n2. Reconcile total disbursements against approved budget and contract value.\n3. Verify road markings phase was completed to specification before final payment.\n4. Review approval chain for the RWF 860M release authorisation."
-)
+create_exp.(p3, 340_000_000.0, "road_markings", "JV ECOTRA-EGETRACO", paid.("2025-04-10"))
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3 ADDITIONAL GASABO DISTRICT PROJECTS WITH ANOMALIES
@@ -236,12 +208,13 @@ seed_anomaly.(
   "1. Place an immediate hold on the second payment of RWF 95,000,000.\n2. Require Gisozi Engineering Partners to return the duplicate payment within 14 days.\n3. Review the payment approval workflow for missing dual-authorisation controls on this contract.\n4. Verify that base course works were completed to specification before either payment was released."
 )
 
-IO.puts("Seeded 6 Gasabo District projects with anomalies and alerts:")
-IO.puts("  1. Zindiro–Masizi–Birembo–Kami Road Construction  (RWF 2.2B)  — inflated contract   (89.0)")
-IO.puts("  2. Cumi na Gatanu–Ndera–Kibenga Road              (RWF 2.5B)  — duplicate payment   (81.0)")
-IO.puts("  3. Karuruma–Bweramvura Asphalt Road               (RWF 1.04B) — premature payment   (76.0)")
-IO.puts("  4. Jabana–Rusororo Bridge Construction             (RWF 780M)  — ghost project       (93.0)")
-IO.puts("  5. Nduba Sector Drainage Rehabilitation            (RWF 420M)  — budget overrun      (83.0)")
-IO.puts("  6. Gisozi–Kacyiru Road Culvert Works              (RWF 310M)  — duplicate payment   (77.0)")
-IO.puts("  Department: Gasabo District Infrastructure Department")
+IO.puts("Seeded 6 Gasabo District projects:")
+IO.puts("  No anomalies:")
+IO.puts("    1. Zindiro-Masizi-Birembo-Kami Road Construction  (RWF 2.2B)")
+IO.puts("    2. Cumi na Gatanu-Ndera-Kibenga Road              (RWF 2.5B)")
+IO.puts("    3. Karuruma-Bweramvura Asphalt Road               (RWF 1.04B)")
+IO.puts("  With anomalies and alerts:")
+IO.puts("    4. Jabana-Rusororo Bridge Construction  (RWF 780M)  — ghost project    (93.0)")
+IO.puts("    5. Nduba Sector Drainage Rehabilitation (RWF 420M)  — budget overrun   (83.0)")
+IO.puts("    6. Gisozi-Kacyiru Road Culvert Works   (RWF 310M)  — duplicate payment (77.0)")
 IO.puts("  Alerts dispatched to: #{Enum.join(alert_recipients, ", ")}")
