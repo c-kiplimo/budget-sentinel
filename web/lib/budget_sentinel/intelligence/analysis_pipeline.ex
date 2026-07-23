@@ -31,23 +31,27 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
     expenditure_id = String.to_integer(raw["expenditure_id"])
     project_id = String.to_integer(raw["project_id"])
 
-    attrs = %{
-      fraud_type: raw["fraud_type"],
-      risk_score: Decimal.from_float(raw["risk_score"] * 1.0),
-      severity: raw["severity"],
-      anomaly_score: Decimal.from_float(raw["anomaly_score"] * 1.0),
-      explanation: raw["explanation"],
-      project_id: project_id,
-      expenditure_id: expenditure_id
-    }
+    if Audit.anomaly_exists_for_expenditure?(expenditure_id) do
+      []
+    else
+      attrs = %{
+        fraud_type: raw["fraud_type"],
+        risk_score: Decimal.from_float(raw["risk_score"] * 1.0),
+        severity: raw["severity"],
+        anomaly_score: Decimal.from_float(raw["anomaly_score"] * 1.0),
+        explanation: raw["explanation"],
+        project_id: project_id,
+        expenditure_id: expenditure_id
+      }
 
-    case Audit.record_anomaly(attrs) do
-      {:ok, anomaly} ->
-        broadcast({:anomaly_detected, anomaly})
-        [Audit.get_anomaly!(anomaly.id)]
+      case Audit.record_anomaly(attrs) do
+        {:ok, anomaly} ->
+          broadcast({:anomaly_detected, anomaly})
+          [Audit.get_anomaly!(anomaly.id)]
 
-      {:error, _changeset} ->
-        []
+        {:error, _changeset} ->
+          []
+      end
     end
   end
 

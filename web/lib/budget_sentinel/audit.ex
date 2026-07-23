@@ -77,6 +77,10 @@ defmodule BudgetSentinel.Audit do
     |> Repo.insert()
   end
 
+  def anomaly_exists_for_expenditure?(expenditure_id) do
+    Repo.exists?(from a in Anomaly, where: a.expenditure_id == ^expenditure_id)
+  end
+
   @doc "Returns an `%Ecto.Changeset{}` for the anomaly status-update form."
   def change_anomaly_status(%Anomaly{} = anomaly, attrs \\ %{}) do
     Anomaly.status_changeset(anomaly, attrs)
