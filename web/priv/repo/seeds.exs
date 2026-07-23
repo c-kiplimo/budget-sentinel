@@ -81,9 +81,10 @@ end
   milestones: milestones
 })
 
-create_exp.(p1, 310_000_000.0, "site_clearing", "Unverified Contractor", paid.("2025-02-10"))
+p1_exp = create_exp.(p1, 310_000_000.0, "site_clearing", "Unverified Contractor", paid.("2025-02-10"))
 create_exp.(p1, 420_000_000.0, "earthworks",    "Unverified Contractor", paid.("2025-03-18"))
 create_exp.(p1, 680_000_000.0, "tarmacking",    "Unverified Contractor", paid.("2025-05-30"))
+Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.from_float(22.0), severity: "low", anomaly_score: Decimal.from_float(0.22), explanation: "Budget variance reviewed; contractor rates verified and approved by district engineer.", project_id: p1.id, expenditure_id: p1_exp.id, detected_at: ~U[2025-03-20 09:00:00Z], status: "resolved"})
 
 # ── Project 2: Cumi na Gatanu–Ndera–Kibenga Road ─────────────────────────────
 # Location: Ndera Sector | Length: 2.7 km | Asphalt road | 2 phases
@@ -99,10 +100,11 @@ create_exp.(p1, 680_000_000.0, "tarmacking",    "Unverified Contractor", paid.("
   milestones: milestones
 })
 
-create_exp.(p2, 380_000_000.0, "site_clearing", "HORIZON Ltd", paid.("2025-01-20"))
+p2_exp = create_exp.(p2, 380_000_000.0, "site_clearing", "HORIZON Ltd", paid.("2025-01-20"))
 create_exp.(p2, 560_000_000.0, "earthworks",    "HORIZON Ltd", paid.("2025-02-28"))
 create_exp.(p2, 490_000_000.0, "base_course",   "HORIZON Ltd", paid.("2025-04-05"))
 create_exp.(p2, 720_000_000.0, "tarmacking",    "HORIZON Ltd", paid.("2025-05-12"))
+Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.from_float(18.0), severity: "low", anomaly_score: Decimal.from_float(0.18), explanation: "Two-phase payment structure reviewed; scope changes formally approved by procurement committee.", project_id: p2.id, expenditure_id: p2_exp.id, detected_at: ~U[2025-02-25 09:00:00Z], status: "resolved"})
 
 # ── Project 3: Karuruma–Bweramvura Asphalt Road ──────────────────────────────
 # Location: Kinyinya Sector | Length: 7.8 km | Asphalt road
@@ -118,10 +120,11 @@ create_exp.(p2, 720_000_000.0, "tarmacking",    "HORIZON Ltd", paid.("2025-05-12
   milestones: milestones
 })
 
-create_exp.(p3, 120_000_000.0, "site_clearing", "JV ECOTRA-EGETRACO", paid.("2025-01-15"))
+p3_exp = create_exp.(p3, 120_000_000.0, "site_clearing", "JV ECOTRA-EGETRACO", paid.("2025-01-15"))
 create_exp.(p3, 195_000_000.0, "earthworks",    "JV ECOTRA-EGETRACO", paid.("2025-02-20"))
 create_exp.(p3, 210_000_000.0, "base_course",   "JV ECOTRA-EGETRACO", paid.("2025-03-25"))
 create_exp.(p3, 340_000_000.0, "road_markings", "JV ECOTRA-EGETRACO", paid.("2025-04-10"))
+Audit.record_anomaly(%{fraud_type: "unclassified_anomaly", risk_score: Decimal.from_float(15.0), severity: "low", anomaly_score: Decimal.from_float(0.15), explanation: "Sub-contractor rates and joint venture agreement reviewed; no irregularities found.", project_id: p3.id, expenditure_id: p3_exp.id, detected_at: ~U[2025-01-20 09:00:00Z], status: "resolved"})
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3 ADDITIONAL GASABO DISTRICT PROJECTS WITH ANOMALIES

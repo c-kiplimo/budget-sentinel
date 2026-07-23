@@ -16,7 +16,7 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
     projects = Procurement.list_projects()
 
     already_flagged =
-      Audit.list_anomalies(status: "open")
+      Audit.list_anomalies(limit: 1000)
       |> Enum.map(& &1.project_id)
       |> MapSet.new()
 

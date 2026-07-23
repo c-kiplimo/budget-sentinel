@@ -42,7 +42,7 @@ defmodule BudgetSentinelWeb.DashboardLive do
   defp assign_dashboard_data(socket, scanning: scanning) do
     user = socket.assigns.current_user
     projects = Procurement.list_projects(user)
-    anomalies = Audit.list_anomalies(user, limit: 10)
+    anomalies = Audit.list_anomalies(user, status: "open", limit: 10)
     alerts = Audit.list_alerts(user, []) |> Enum.take(5)
     failed_alerts_count = Audit.count_failed_alerts(user)
 
