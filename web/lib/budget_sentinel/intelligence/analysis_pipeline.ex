@@ -14,16 +14,28 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
 
   def run_detection_scan do
     projects = Procurement.list_projects()
-    expenditures = Procurement.list_expenditures()
 
-    project_payloads = Enum.map(projects, &project_payload/1)
-    expenditure_payloads = Enum.map(expenditures, &expenditure_payload/1)
+    already_flagged =
+      Audit.list_anomalies(status: "open")
+      |> Enum.map(& &1.project_id)
+      |> MapSet.new()
 
-    with {:ok, raw_anomalies} <- ai_client().detect_anomalies(project_payloads, expenditure_payloads) do
-      persisted = Enum.flat_map(raw_anomalies, &persist_anomaly/1)
-      Enum.each(persisted, &handle_high_risk/1)
-      broadcast({:scan_completed, length(persisted)})
-      {:ok, persisted}
+    projects = Enum.reject(projects, &MapSet.member?(already_flagged, &1.id))
+    expenditures = Procurement.list_expenditures_for_projects(Enum.map(projects, & &1.id))
+
+    if projects == [] do
+      broadcast({:scan_completed, 0})
+      {:ok, []}
+    else
+      project_payloads = Enum.map(projects, &project_payload/1)
+      expenditure_payloads = Enum.map(expenditures, &expenditure_payload/1)
+
+      with {:ok, raw_anomalies} <- ai_client().detect_anomalies(project_payloads, expenditure_payloads) do
+        persisted = Enum.flat_map(raw_anomalies, &persist_anomaly/1)
+        Enum.each(persisted, &handle_high_risk/1)
+        broadcast({:scan_completed, length(persisted)})
+        {:ok, persisted}
+      end
     end
   end
 

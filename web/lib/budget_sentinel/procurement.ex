@@ -74,6 +74,15 @@ defmodule BudgetSentinel.Procurement do
     |> Repo.all()
   end
 
+  def list_expenditures_for_projects([]), do: []
+
+  def list_expenditures_for_projects(project_ids) do
+    Expenditure
+    |> where([e], e.project_id in ^project_ids)
+    |> order_by(desc: :paid_on)
+    |> Repo.all()
+  end
+
   def get_expenditure!(id), do: Repo.get!(Expenditure, id)
 
   def change_expenditure(%Expenditure{} = expenditure, attrs \\ %{}) do
