@@ -4,8 +4,8 @@ alias BudgetSentinel.{Accounts, Audit, Ministries, Procurement, Repo}
 
 # Single ministry: Ministry of Roads and Infrastructure — Gasabo District
 {:ok, ministry} =
-  case Ministries.list_ministries() |> Enum.find(&(&1.code == "MININFRA")) do
-    nil -> Ministries.create_ministry(%{name: "Ministry of Roads and Infrastructure", code: "MININFRA"})
+  case Ministries.list_ministries() |> Enum.find(&(&1.code == "GASABO-INFRA")) do
+    nil -> Ministries.create_ministry(%{name: "Gasabo District Infrastructure Department", code: "GASABO-INFRA"})
     existing -> {:ok, existing}
   end
 
@@ -148,4 +148,5 @@ IO.puts("Seeded 3 Gasabo District projects with anomalies and alerts:")
 IO.puts("  1. Kimironko–Remera Road Rehabilitation  — inflated contract   (risk: 87.5)")
 IO.puts("  2. Kinyinya Bridge Rehabilitation         — duplicate payment   (risk: 79.0)")
 IO.puts("  3. Kacyiru–Kagugu Culvert Replacement     — ghost project       (risk: 93.0)")
+IO.puts("  Department: Gasabo District Infrastructure Department")
 IO.puts("  Alerts dispatched to: #{Enum.join(alert_recipients, ", ")}")
