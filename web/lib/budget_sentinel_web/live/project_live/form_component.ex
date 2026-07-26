@@ -68,7 +68,7 @@ defmodule BudgetSentinelWeb.ProjectLive.FormComponent do
           </div>
 
           <div class="form-field">
-            <label>Sector</label>
+            <label>Project Type</label>
             <select name="project[sector]">
               <option :for={sector <- BudgetSentinel.Procurement.Project.sectors()} value={sector} selected={@form[:sector].value == sector}>
                 <%= sector |> String.replace("_", " ") |> String.split() |> Enum.map_join(" ", &String.capitalize/1) %>
@@ -77,7 +77,7 @@ defmodule BudgetSentinelWeb.ProjectLive.FormComponent do
           </div>
 
           <div class="form-field">
-            <label>Ministry</label>
+            <label>Department</label>
             <select name="project[ministry_id]">
               <option value="">Select a ministry</option>
               <option :for={ministry <- @ministries} value={ministry.id} selected={to_string(@form[:ministry_id].value) == to_string(ministry.id)}>

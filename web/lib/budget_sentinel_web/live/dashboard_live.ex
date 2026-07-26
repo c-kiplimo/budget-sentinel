@@ -79,7 +79,7 @@ defmodule BudgetSentinelWeb.DashboardLive do
         <thead>
           <tr>
             <th>Project</th>
-            <th>Sector</th>
+            <th>Project Type</th>
             <th>Budget Utilization</th>
           </tr>
         </thead>

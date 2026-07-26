@@ -2,7 +2,7 @@ defmodule BudgetSentinel.Procurement.Project do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @sectors ~w(road_construction bridge_works drainage culverts traffic_management)
+  @sectors ~w(road_construction road_rehabilitation bridge_works drainage_works)
 
   schema "projects" do
     field :name, :string

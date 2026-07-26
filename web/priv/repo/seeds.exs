@@ -147,7 +147,7 @@ seed_anomaly.(
 # ── Project 5: Nduba Sector Drainage Rehabilitation ──────────────────────────
 {:ok, p5} = Procurement.create_project(%{
   name: "Nduba Sector Drainage Rehabilitation",
-  sector: "drainage",
+  sector: "drainage_works",
   ministry_id: ministry.id,
   approved_budget: Decimal.new("420000000"),
   market_benchmark: Decimal.new("390000000"),
@@ -173,7 +173,7 @@ seed_anomaly.(
 # ── Project 6: Gisozi–Kacyiru Road Culvert Works ─────────────────────────────
 {:ok, p6} = Procurement.create_project(%{
   name: "Gisozi–Kacyiru Road Culvert Works",
-  sector: "culverts",
+  sector: "drainage_works",
   ministry_id: ministry.id,
   approved_budget: Decimal.new("310000000"),
   market_benchmark: Decimal.new("285000000"),
@@ -205,7 +205,7 @@ seed_anomaly.(
 # Budget: RWF 180M | 0% completion, 94% of budget already paid out
 {:ok, p7} = Procurement.create_project(%{
   name: "Kimironko–Biryogo Traffic Signalisation",
-  sector: "traffic_management",
+  sector: "road_construction",
   ministry_id: ministry.id,
   approved_budget: Decimal.new("180000000"),
   market_benchmark: Decimal.new("160000000"),

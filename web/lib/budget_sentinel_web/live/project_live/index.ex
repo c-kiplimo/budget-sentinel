@@ -51,8 +51,8 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
         <thead>
           <tr>
             <th>Name</th>
-            <th>Sector</th>
-            <th>Ministry</th>
+            <th>Project Type</th>
+            <th>Department</th>
             <th>Approved Budget</th>
             <th>Completion</th>
             <th>Completion Date</th>
@@ -63,7 +63,7 @@ defmodule BudgetSentinelWeb.ProjectLive.Index do
           <tr :for={project <- @projects}>
             <td><.link navigate={~p"/projects/#{project.id}"}><%= project.name %></.link></td>
             <td><%= project.sector |> String.replace("_", " ") |> String.split() |> Enum.map_join(" ", &String.capitalize/1) %></td>
-            <td><%= project.ministry && project.ministry.name %></td>
+            <td><%= project.ministry && project.ministry.name || "—" %></td>
             <td><%= Decimal.to_string(project.approved_budget) %></td>
             <td><%= Decimal.to_string(project.completion_rate) %>%</td>
             <td><%= if project.completion_date, do: Date.to_string(project.completion_date), else: "—" %></td>
