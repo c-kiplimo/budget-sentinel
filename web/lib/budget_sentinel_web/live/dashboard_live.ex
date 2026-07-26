@@ -47,7 +47,7 @@ defmodule BudgetSentinelWeb.DashboardLive do
     failed_alerts_count = Audit.count_failed_alerts(user)
 
     socket
-    |> assign(:projects, Enum.take(projects, 6))
+    |> assign(:projects, projects)
     |> assign(:total_projects, length(projects))
     |> assign(:anomalies, anomalies)
     |> assign(:high_risk_count, Audit.count_open_high_risk(user))
