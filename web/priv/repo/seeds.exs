@@ -25,6 +25,15 @@ if is_nil(Accounts.get_user_by_email("uwasedorcas22@gmail.com")) do
   })
 end
 
+if is_nil(Accounts.get_user_by_email("kiplimocollins855@gmail.com")) do
+  {:ok, _} = Accounts.create_user_by_admin(%{
+    email: "kiplimocollins855@gmail.com",
+    password: "BudgetSentinel!1234",
+    role: "auditor",
+    ministry_id: ministry.id
+  })
+end
+
 milestones = ~w(site_clearing earthworks base_course tarmacking road_markings)
 alert_recipients = ["uwasedorcas22@gmail.com", "admin@budgetsentinel.online"]
 
