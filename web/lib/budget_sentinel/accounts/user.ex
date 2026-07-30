@@ -22,7 +22,7 @@ defmodule BudgetSentinel.Accounts.User do
   def roles, do: @roles
 
   @doc "Admins and auditors can create/edit/delete projects and expenditures and trigger scans."
-  def can_manage?(%__MODULE__{role: role}), do: role in ["admin", "auditor"]
+  def can_manage?(%__MODULE__{role: role}), do: role == "admin"
   def can_manage?(_), do: false
 
   def admin?(%__MODULE__{role: "admin"}), do: true
