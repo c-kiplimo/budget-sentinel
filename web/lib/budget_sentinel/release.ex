@@ -7,10 +7,20 @@ defmodule BudgetSentinel.Release do
   @app :budget_sentinel
 
   def migrate do
-    for repo <- repos() do
-      {:ok, _, _} =
-        Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+    Application.load(@app)
+
+    for repo <- Application.fetch_env!(@app, :ecto_repos) do
+      {:ok, _} = Application.ensure_all_started(:ecto_sql)
+
+      case repo.start_link(pool_size: 2) do
+        {:ok, _} -> :ok
+        {:error, {:already_started, _}} -> :ok
+      end
+
+      Ecto.Migrator.run(repo, :up, all: true)
     end
+
+    System.halt(0)
   end
 
   def seed do
