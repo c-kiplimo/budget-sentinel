@@ -25,7 +25,7 @@ if config_env() == :prod do
 
   config :budget_sentinel, BudgetSentinelWeb.Endpoint,
     url: [host: host, port: url_port, scheme: scheme],
-    http: [ip: {0, 0, 0, 0, 0, 0, 0, 0}, port: port],
+    http: [ip: {0, 0, 0, 0}, port: port],
     secret_key_base: secret_key_base
 
   config :budget_sentinel, :ai_service_base_url,
