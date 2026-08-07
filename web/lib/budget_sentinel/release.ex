@@ -7,6 +7,27 @@ defmodule BudgetSentinel.Release do
   @app :budget_sentinel
 
   def migrate do
+    start_repo()
+    System.halt(0)
+  end
+
+  def seed do
+    start_repo()
+    path = Application.app_dir(@app, "priv/repo/seeds.exs")
+    count = BudgetSentinel.Repo.aggregate(BudgetSentinel.Ministries.Ministry, :count)
+
+    if count == 0 do
+      IO.puts("[seed] Running seeds from #{path}")
+      Code.eval_file(path)
+      IO.puts("[seed] Done.")
+    else
+      IO.puts("[seed] Database already seeded (#{count} ministries found), skipping.")
+    end
+
+    System.halt(0)
+  end
+
+  defp start_repo do
     Application.load(@app)
 
     for repo <- Application.fetch_env!(@app, :ecto_repos) do
@@ -18,27 +39,6 @@ defmodule BudgetSentinel.Release do
       end
 
       Ecto.Migrator.run(repo, :up, all: true)
-    end
-
-    System.halt(0)
-  end
-
-  def seed do
-    Application.load(@app)
-    path = Application.app_dir(@app, "priv/repo/seeds.exs")
-
-    for repo <- repos() do
-      {:ok, _, _} = Ecto.Migrator.with_repo(repo, fn repo ->
-        count = repo.aggregate(BudgetSentinel.Ministries.Ministry, :count)
-
-        if count == 0 do
-          IO.puts("[seed] Running seeds from #{path}")
-          Code.eval_file(path)
-          IO.puts("[seed] Done.")
-        else
-          IO.puts("[seed] Database already seeded (#{count} ministries found), skipping.")
-        end
-      end)
     end
   end
 
