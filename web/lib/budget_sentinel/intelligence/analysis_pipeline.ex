@@ -13,19 +13,12 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
   def topic, do: @topic
 
   def run_detection_scan do
-    projects = Procurement.list_projects()
-
-    already_flagged =
-      Audit.list_anomalies(limit: 1000)
-      |> Enum.map(& &1.project_id)
-      |> MapSet.new()
-
     today = Date.utc_today()
 
     projects =
-      Enum.reject(projects, fn p ->
-        MapSet.member?(already_flagged, p.id) or
-          (not is_nil(p.completion_date) and Date.compare(p.completion_date, today) == :lt)
+      Procurement.list_projects()
+      |> Enum.reject(fn p ->
+        not is_nil(p.completion_date) and Date.compare(p.completion_date, today) == :lt
       end)
 
     expenditures = Procurement.list_expenditures_for_projects(Enum.map(projects, & &1.id))
@@ -42,6 +35,12 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
         Enum.each(persisted, &handle_high_risk/1)
         broadcast({:scan_completed, length(persisted)})
         {:ok, persisted}
+      else
+        {:error, reason} ->
+          require Logger
+          Logger.error("[AnalysisPipeline] AI service error: #{inspect(reason)}")
+          broadcast({:scan_completed, 0})
+          {:error, reason}
       end
     end
   end
@@ -84,6 +83,10 @@ defmodule BudgetSentinel.Intelligence.AnalysisPipeline do
            {:ok, report} <- Audit.attach_report(anomaly, report_body) do
         broadcast({:report_generated, anomaly.id, report})
         Notifications.Dispatcher.dispatch(anomaly, report, project)
+      else
+        {:error, reason} ->
+          require Logger
+          Logger.error("[AnalysisPipeline] Report generation failed for anomaly #{anomaly.id}: #{inspect(reason)}")
       end
     end
   end

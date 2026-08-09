@@ -5,7 +5,7 @@ defmodule BudgetSentinel.Accounts.UserNotifier do
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
-    from_addr = System.get_env("MAIL_FROM") || "onboarding@resend.dev"
+    from_addr = System.get_env("MAIL_FROM") || System.get_env("SMTP_USERNAME") || "onboarding@resend.dev"
     email =
       new()
       |> to(recipient)
@@ -187,7 +187,7 @@ defmodule BudgetSentinel.Accounts.UserNotifier do
   defp html_escape(value), do: value |> to_string() |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
 
   defp deliver_html(recipient, subject, text_body, html_body) do
-    from_addr = System.get_env("MAIL_FROM") || "onboarding@resend.dev"
+    from_addr = System.get_env("MAIL_FROM") || System.get_env("SMTP_USERNAME") || "onboarding@resend.dev"
     email =
       new()
       |> to(recipient)

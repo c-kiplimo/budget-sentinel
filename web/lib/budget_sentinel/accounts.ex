@@ -72,8 +72,8 @@ defmodule BudgetSentinel.Accounts do
 
   @doc """
   Email addresses that should receive an alert for an anomaly in the given
-  ministry: every admin (who oversee all ministries) plus the oversight
-  officers and auditors assigned to that specific ministry.
+  ministry: every admin (who oversee all ministries) plus the finance
+  officers and project managers assigned to that specific ministry.
   """
   def list_alert_recipients(ministry_id) do
     User

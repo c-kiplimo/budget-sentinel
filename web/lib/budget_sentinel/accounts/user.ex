@@ -2,7 +2,7 @@ defmodule BudgetSentinel.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @roles ~w(admin auditor oversight_officer)
+  @roles ~w(admin auditor finance_officer project_manager)
 
   schema "users" do
     field :email, :string
@@ -10,7 +10,7 @@ defmodule BudgetSentinel.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
-    field :role, :string, default: "oversight_officer"
+    field :role, :string, default: "finance_officer"
     field :invited_at, :utc_datetime
 
     belongs_to :ministry, BudgetSentinel.Ministries.Ministry
